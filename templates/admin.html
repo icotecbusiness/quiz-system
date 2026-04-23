@@ -1,0 +1,75 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h2 class="text-3xl font-bold mb-6 text-center">Admin Dashboard</h2>
+
+<a href="/admin_reset" 
+   style="background:#1f4e79; color:white; padding:10px 20px; border-radius:5px; text-decoration:none;">
+   Manage / Reset Quizzes
+</a>
+
+<!-- Export PDF Button -->
+<div class="mb-6 text-center">
+    <a href="/export_results"
+       class="bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700 font-bold">
+       Download Results PDF
+    </a>
+</div>
+
+<!-- Student Results Table -->
+<h3 class="text-2xl font-semibold mb-2">Student Results</h3>
+<table class="min-w-full bg-white shadow rounded mb-8">
+    <thead>
+        <tr class="bg-gray-200">
+            <th class="px-4 py-2">Student</th>
+            <th class="px-4 py-2">Subject</th>
+            <th class="px-4 py-2">Score</th>
+            <th class="px-4 py-2">Total</th>
+            <th class="px-4 py-2">Percentage</th>
+            <th class="px-4 py-2">Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for r in results %}
+        <tr class="text-center border-t">
+            <td class="px-4 py-2">{{ r.student }}</td>
+            <td class="px-4 py-2">{{ r.subject }}</td>
+            <td class="px-4 py-2">{{ r.score }}</td>
+            <td class="px-4 py-2">{{ r.total }}</td>
+            <td class="px-4 py-2">{{ r.percentage }}%</td>
+            <td class="px-4 py-2">{{ r.status }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Questions Table -->
+<h3 class="text-2xl font-semibold mb-2">Questions</h3>
+<table class="min-w-full bg-white shadow rounded">
+    <thead>
+        <tr class="bg-gray-200">
+            <th class="px-4 py-2">ID</th>
+            <th class="px-4 py-2">Subject ID</th>
+            <th class="px-4 py-2">Question</th>
+            <th class="px-4 py-2">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for q in questions %}
+        <tr class="text-center border-t">
+            <td class="px-4 py-2">{{ q.id }}</td>
+            <td class="px-4 py-2">{{ q.subject_id }}</td>
+            <td class="px-4 py-2 text-left">{{ q.question }}</td>
+            <td class="px-4 py-2">
+                <a href="/edit_question/{{ q.id }}"
+                   class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600">
+                   Edit
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}
