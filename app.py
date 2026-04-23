@@ -10,7 +10,7 @@ from io import BytesIO
 from datetime import datetime
 
 # PDF
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle, Spacer, Image
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle, Spacer
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet
@@ -24,6 +24,62 @@ def get_db():
     db = sqlite3.connect(db_path)
     db.row_factory = sqlite3.Row
     return db
+
+# -------- INIT DATABASE ------
+def init_db():
+    db = get_db()
+
+    db.execute("""
+    CREATE TABLE IF NOT EXISTS users(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT,
+        email TEXT,
+        password TEXT,
+        role TEXT
+    )
+    """)
+
+    db.execute("""
+    CREATE TABLE IF NOT EXISTS subjects(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT
+    )
+    """)
+
+    db.execute("""
+    CREATE TABLE IF NOT EXISTS questions(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        subject_id INTEGER,
+        question TEXT,
+        option_a TEXT,
+        option_b TEXT,
+        option_c TEXT,
+        option_d TEXT,
+        correct TEXT
+    )
+    """)
+
+    db.execute("""
+    CREATE TABLE IF NOT EXISTS results(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        subject_id INTEGER,
+        score INTEGER
+    )
+    """)
+
+    # Insert default subjects if empty
+    count = db.execute("SELECT COUNT(*) as c FROM subjects").fetchone()['c']
+    if count == 0:
+        db.execute("INSERT INTO subjects(name) VALUES ('MS Word')")
+        db.execute("INSERT INTO subjects(name) VALUES ('MS Excel')")
+        db.execute("INSERT INTO subjects(name) VALUES ('Operating Systems')")
+        db.execute("INSERT INTO subjects(name) VALUES ('Computer Networks')")
+
+    db.commit()
+
+# 🔥 CALL INIT
+init_db()
 
 # -------- HOME --------------
 @app.route('/')
@@ -47,6 +103,7 @@ def register():
 @app.route('/login', methods=['GET','POST'])
 def login():
     error = None
+
     if request.method == 'POST':
         db = get_db()
         user = db.execute(
@@ -80,6 +137,7 @@ def dashboard():
         return redirect('/login')
 
     db = get_db()
+
     subjects = db.execute("SELECT * FROM subjects").fetchall()
 
     completed = db.execute(
@@ -145,6 +203,7 @@ def my_results():
         return redirect('/login')
 
     db = get_db()
+
     results = db.execute("""
         SELECT subjects.name as subject, results.score, subjects.id as subject_id
         FROM results
@@ -177,6 +236,7 @@ def my_certificate_pdf():
         return redirect('/login')
 
     db = get_db()
+
     student = db.execute("SELECT * FROM users WHERE id=?",
                          (session['user_id'],)).fetchone()
 
@@ -193,22 +253,25 @@ def my_certificate_pdf():
     styles = getSampleStyleSheet()
     elements = []
 
-    # Header
     elements.append(Paragraph("<b>ICOTEC TRAINING CENTER</b>", styles['Title']))
     elements.append(Paragraph("P.O Box 515-01020 Kenol | Tel: 0750118615", styles['Normal']))
     elements.append(Spacer(1,20))
 
     elements.append(Paragraph("<b>PRELIMINARY RESULTS</b>", styles['Heading1']))
     elements.append(Spacer(1,20))
+
     elements.append(Paragraph(f"Student: <b>{student['name']}</b>", styles['Normal']))
     elements.append(Spacer(1,20))
 
-    # Table
     data = [["Subject","Score","Total","%","Status"]]
+
     for r in results:
-        total = db.execute("SELECT COUNT(*) as cnt FROM questions WHERE subject_id=?",
-                           (r['subject_id'],)).fetchone()['cnt']
-        percent = (r['score']/total)*100 if total else 0
+        total = db.execute(
+            "SELECT COUNT(*) as cnt FROM questions WHERE subject_id=?",
+            (r['subject_id'],)
+        ).fetchone()['cnt']
+
+        percent = (r['score'] / total) * 100 if total else 0
         status = "PASS" if percent >= 50 else "FAIL"
 
         data.append([r['subject'], r['score'], total, round(percent,2), status])
@@ -225,11 +288,10 @@ def my_certificate_pdf():
     doc.build(elements)
 
     buffer.seek(0)
-    filename = f"{student['name']}_results.pdf"
 
     return send_file(buffer,
                      as_attachment=True,
-                     download_name=filename,
+                     download_name="results.pdf",
                      mimetype='application/pdf')
 
 # -------- ADMIN ------------
