@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div style="max-width:400px; margin:50px auto; padding:20px; border:1px solid #ccc; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,0.1);">
+    <h2 style="text-align:center; font-size:32px; margin-bottom:20px;">Login</h2>
+
+    {% if message %}
+        <p style="color:red; text-align:center; font-size:16px; margin-bottom:15px;">{{ message }}</p>
+    {% endif %}
+
+    <form method="post">
+        <input name="email" placeholder="Email" type="email" style="width:100%; font-size:18px; padding:12px; margin-bottom:15px; border-radius:5px; border:1px solid #ccc;"><br>
+        <input name="password" placeholder="Password" type="password" style="width:100%; font-size:18px; padding:12px; margin-bottom:20px; border-radius:5px; border:1px solid #ccc;"><br>
+        <button type="submit" style="width:100%; font-size:20px; padding:12px; background-color:#1f4e79; color:white; border:none; border-radius:5px; cursor:pointer;">
+            Login
+        </button>
+    </form>
+
+    <p style="text-align:center; margin-top:15px; font-size:16px;">
+        Don't have an account? 
+        <a href="/register" style="color:#1f4e79; font-weight:bold;">Register here</a>
+    </p>
+</div>
+{% endblock %}
