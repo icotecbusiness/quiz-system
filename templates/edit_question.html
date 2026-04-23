@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h2 class="text-2xl font-bold mb-4">Edit Question</h2>
+
+<form method="POST" class="bg-white shadow p-6 rounded max-w-lg">
+    <textarea name="question" class="w-full p-2 border mb-2" placeholder="Question">{{ question['question'] }}</textarea>
+    <input name="a" class="w-full p-2 border mb-2" value="{{ question['option_a'] }}" placeholder="Option A">
+    <input name="b" class="w-full p-2 border mb-2" value="{{ question['option_b'] }}" placeholder="Option B">
+    <input name="c" class="w-full p-2 border mb-2" value="{{ question['option_c'] }}" placeholder="Option C">
+    <input name="d" class="w-full p-2 border mb-2" value="{{ question['option_d'] }}" placeholder="Option D">
+    <input name="correct" class="w-full p-2 border mb-2" value="{{ question['correct'] }}" placeholder="Correct (A/B/C/D)">
+    <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Save Changes</button>
+</form>
+{% endblock %}
