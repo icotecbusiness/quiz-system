@@ -1,0 +1,49 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h2 style="text-align:center; margin-bottom:20px;">
+    Welcome {{ user['name'] }} 👋
+</h2>
+
+<div style="text-align:center; margin-bottom:20px;">
+    <a href="/my_results"
+       style="background:#28a745; color:white; padding:12px 25px; font-size:18px; border-radius:5px; text-decoration:none;">
+       📊 View My Results
+    </a>
+</div>
+
+<!-- ✅ PDF DOWNLOAD BUTTON -->
+<div style="text-align:center; margin-bottom:30px;">
+    <a href="/my_certificate_pdf"
+       style="background-color:#1f4e79; color:white; padding:12px 25px; font-size:18px; border-radius:5px; text-decoration:none;">
+       📄 Download My Results PDF
+    </a>
+</div>
+
+<h2 style="text-align:center; margin-bottom:30px;">Select Subject</h2>
+
+{% for s in subjects %}
+    <div style="margin-bottom:20px; text-align:center;">
+
+        {% if s[0] in completed_subject_ids %}
+            <!-- COMPLETED -->
+            <button 
+                style="padding:12px 25px; font-size:18px; background-color:gray; color:white; border:none; border-radius:5px; cursor:not-allowed;"
+                title="You have already completed this quiz"
+                disabled>
+                {{ s[1] }} ✅ Completed
+            </button>
+
+        {% else %}
+            <!-- AVAILABLE -->
+            <a href="/quiz/{{s[0]}}"
+               style="padding:12px 25px; font-size:18px; background-color:#28a745; color:white; text-decoration:none; border-radius:5px;">
+               {{ s[1] }}
+            </a>
+        {% endif %}
+
+    </div>
+{% endfor %}
+
+{% endblock %}
