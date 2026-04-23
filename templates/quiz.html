@@ -1,0 +1,86 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="bg-white shadow p-6 rounded">
+    <h2 class="text-2xl font-bold mb-4">Quiz</h2>
+
+    <!-- Timer -->
+    <div class="mb-4">
+        <div class="flex justify-between mb-1">
+            <span>Time Left: <span id="timerText">5:00</span></span>
+            <span id="percentageText">100%</span>
+        </div>
+        <div class="w-full bg-gray-300 rounded h-4">
+            <div id="timerBar" class="bg-green-500 h-4 rounded transition-all duration-500"></div>
+        </div>
+    </div>
+
+    <form id="quizForm" method="POST">
+        {% for q in questions %}
+        <div class="mb-4">
+            <p class="font-semibold">{{ q[2] }}</p>
+            <label class="block"><input type="radio" name="{{q[0]}}" value="A"> {{ q[3] }}</label>
+            <label class="block"><input type="radio" name="{{q[0]}}" value="B"> {{ q[4] }}</label>
+            <label class="block"><input type="radio" name="{{q[0]}}" value="C"> {{ q[5] }}</label>
+            <label class="block"><input type="radio" name="{{q[0]}}" value="D"> {{ q[6] }}</label>
+        </div>
+        {% endfor %}
+
+        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Submit</button>
+    </form>
+</div>
+
+<script>
+let totalTime = 300; // seconds (5 minutes)
+let timeLeft = totalTime;
+
+const timerText = document.getElementById('timerText');
+const timerBar = document.getElementById('timerBar');
+const percentageText = document.getElementById('percentageText');
+
+function formatTime(seconds) {
+    let m = Math.floor(seconds / 60);
+    let s = seconds % 60;
+    return `${m}:${s.toString().padStart(2,'0')}`;
+}
+
+const timer = setInterval(() => {
+    if(timeLeft <= 0){
+        clearInterval(timer);
+        alert("Time's up! Your quiz will be submitted.");
+        document.getElementById('quizForm').submit();
+    } else {
+        // Update timer text
+        timerText.innerText = formatTime(timeLeft);
+
+        // Update progress bar
+        let percentage = (timeLeft / totalTime) * 100;
+        timerBar.style.width = percentage + '%';
+        percentageText.innerText = Math.round(percentage) + '%';
+
+        // Change bar color near end
+        if(percentage <= 20){
+            timerBar.classList.remove('bg-green-500');
+            timerBar.classList.add('bg-red-500');
+        } else if(percentage <= 50){
+            timerBar.classList.remove('bg-green-500');
+            timerBar.classList.add('bg-yellow-500');
+        }
+
+        timeLeft--;
+    }
+}, 1000);
+</script>
+
+<script>
+document.getElementById("quizForm").addEventListener("submit", function(e) {
+    let totalQuestions = {{ questions|length }};
+    let answered = document.querySelectorAll('input[type="radio"]:checked').length;
+
+    if (answered < totalQuestions) {
+        e.preventDefault();
+        alert("⚠️ You must answer ALL questions before submitting!");
+    }
+});
+</script>
+{% endblock %}
